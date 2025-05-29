@@ -1,11 +1,16 @@
 import { FastifyRequest, FastifyReply } from "fastify"
+import { TelegramService } from "../services/TelegramService"
+
+const service = new TelegramService()
 
 export class TelegramController {
     webhook = async (req: FastifyRequest, res: FastifyReply) => {
+        const request = req.body
+
+        console.log(request)
         try {
-            console.log(req.body)
             res.status(200).send({
-                message: "deu boa"
+                message: "OK"
             })
         } catch (error) {
             res.status(500).send({

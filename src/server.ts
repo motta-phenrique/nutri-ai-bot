@@ -1,5 +1,5 @@
 import fastify from "fastify";
-import { TelegramRoutes } from "./routes/telegram.route"; 
+import { TelegramRoutes } from "./routes/Telegram.route"; 
 
 export const app = fastify()
 

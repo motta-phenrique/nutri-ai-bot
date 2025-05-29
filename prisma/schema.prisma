@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  supabaseId     String   @id                 // ID do usuário no Supabase (auth.users.id)
+  telegramChatId String?  @unique             // chatId do Telegram, se ativado                    // Enum do plano
+  planoAtivo     Boolean                      // Se o plano está ativo
+  planoExpiraEm  DateTime?                    // Data de expiração do plano
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  messages      Message[]                     // Relação com mensagens
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [supabaseId])
+  text       String
+  isFromBot  Boolean
+  createdAt  DateTime @default(now())
+}
