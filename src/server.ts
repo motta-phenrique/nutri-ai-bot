@@ -1,5 +1,9 @@
 import fastify from "fastify";
 import { TelegramRoutes } from "./routes/Telegram.route"; 
+import dotenv from "dotenv";
+
+
+dotenv.config();
 
 export const app = fastify()
 
