@@ -41,7 +41,7 @@ export class TelegramController {
                 return
             }
 
-            const response = await geminiService.responseChatBot(user.supabaseId)
+            const response = await geminiService.responseChatBot(user.supabaseId, messageText)
 
             await service.createMessage(user.supabaseId, messageText, false)
             await service.createMessage(user.supabaseId, "Teste", true)
