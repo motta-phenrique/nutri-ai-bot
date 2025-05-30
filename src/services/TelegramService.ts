@@ -35,47 +35,66 @@ export class TelegramService {
       return {
         plan_active: data.plan_active,
       };
-
     } catch (error) {
-        console.error(error)
+      console.error(error);
     }
   };
 
   sendMessage = async (chatId: number, text: string) => {
     try {
-        await axios.post(`${TELEGRAM_API_URL}/sendMessage`, {
-            chat_id: chatId,
-            text,
-            parse_mode: "HTML"
-        })
+      await axios.post(`${TELEGRAM_API_URL}/sendMessage`, {
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+      });
     } catch (error) {
-        console.error("Erro ao enviar mensagem:")
+      console.error("Erro ao enviar mensagem:");
     }
   };
 
-  createMessage = async (userId: string, content: string, isFromBot: boolean) => {
+  createMessage = async (
+    userId: string,
+    content: string,
+    isFromBot: boolean
+  ) => {
     const data = prisma.message.create({
-        data: {
-            userId,
-            text: content,
-            isFromBot
-        }
-    })
+      data: {
+        userId,
+        text: content,
+        isFromBot,
+      },
+    });
 
-    return data
-  }
+    return data;
+  };
 
   verifyUserByChatId = async (chatId: number) => {
     const user = await prisma.user.findUnique({
-        where: {
-            telegramChatId: chatId
-        }
-    })
+      where: {
+        telegramChatId: chatId,
+      },
+    });
 
-    return user
-  }
+    return user;
+  };
 
-  getFilePath = async () => {};
+  getFilePath = async (fileId: string) => {
+    if (!fileId) return "Erro de Path";
+    try {
+      const response = await axios.get(`${TELEGRAM_API_URL}/getFile?file_id=${fileId}`)
+      console.log(response)
+      return response.data.result.file_path;
+    } catch (error) {
+      console.log(error)
+    }
+  };
 
-  downloadFile = async () => {};
+  downloadFile = async (filePath: string) => {
+    try {
+      const response = await axios.get(`${TELEGRAM_FILE_URL}${TELEGRAM_TOKEN}/${filePath}`, {responseType: "arraybuffer"})
+      return Buffer.from(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  };
 }
