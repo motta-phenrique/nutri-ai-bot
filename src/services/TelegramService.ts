@@ -1,8 +1,7 @@
 import prisma from "../plugins/prisma";
 import supabase from "../plugins/supabase";
-import { TelegramUpdate } from "../types/Telegram";
-import { UserProfile } from "../types/Supabase";
 import axios from "axios";
+import { sanitizeTelegramHTML } from "../utils/TelegramUtils";
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
@@ -33,7 +32,7 @@ export class TelegramService {
       }
 
       return {
-        plan_active: data.plan_active,
+        plan_active: data.active_plan,
       };
     } catch (error) {
       console.error(error);
@@ -41,14 +40,16 @@ export class TelegramService {
   };
 
   sendMessage = async (chatId: number, text: string) => {
+    const formattedText = sanitizeTelegramHTML(text);
     try {
       await axios.post(`${TELEGRAM_API_URL}/sendMessage`, {
         chat_id: chatId,
-        text,
+        text: formattedText,
         parse_mode: "HTML",
       });
     } catch (error) {
       console.error("Erro ao enviar mensagem:");
+      console.log(error);
     }
   };
 
@@ -78,23 +79,41 @@ export class TelegramService {
     return user;
   };
 
-  getFilePath = async (fileId: string) => {
-    if (!fileId) return "Erro de Path";
+  verifyPlanUser = async (userId: string) => {
     try {
-      const response = await axios.get(`${TELEGRAM_API_URL}/getFile?file_id=${fileId}`)
-      console.log(response)
-      return response.data.result.file_path;
+      const { data } = await supabase
+        .from("user_profile")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      return data.active_plan
     } catch (error) {
       console.log(error)
     }
   };
 
+  getFilePath = async (fileId: string) => {
+    if (!fileId) return "Erro de Path";
+    try {
+      const response = await axios.get(
+        `${TELEGRAM_API_URL}/getFile?file_id=${fileId}`
+      );
+      return response.data.result.file_path;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   downloadFile = async (filePath: string) => {
     try {
-      const response = await axios.get(`${TELEGRAM_FILE_URL}${TELEGRAM_TOKEN}/${filePath}`, {responseType: "arraybuffer"})
-      return Buffer.from(response.data)
+      const response = await axios.get(
+        `${TELEGRAM_FILE_URL}${TELEGRAM_TOKEN}/${filePath}`,
+        { responseType: "arraybuffer" }
+      );
+      return Buffer.from(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 }

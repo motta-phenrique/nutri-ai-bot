@@ -10,6 +10,7 @@ export interface TelegramMessage {
   date: number;
   text?: string;
   photo?: TelegramPhotoSize[];
+  caption?: string;
 }
 
 export interface TelegramUser {
@@ -24,7 +25,7 @@ export interface TelegramChat {
   id: number;
   first_name?: string;
   last_name?: string;
-  type: 'private' | 'group' | 'supergroup' | 'channel';
+  type: "private" | "group" | "supergroup" | "channel";
 }
 
 export interface TelegramPhotoSize {
