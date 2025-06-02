@@ -24,15 +24,10 @@ export class TelegramController {
     const isPhoto = message.photo;
     const fileId = message.photo?.[message.photo?.length - 1].file_id || "";
 
-    console.log(message)
-
     try {
       if (isStart) {
         const userId = messageText.split(" ")[1];
-        console.log("aaaaa", userId, chatId)
         const user = await service.processStart(chatId, userId);
-
-        console.log(user)
 
         await service.createMessage(userId, messageText, false);
 
@@ -94,6 +89,8 @@ export class TelegramController {
       res.status(500).send({
         error: (error as Error).message,
       });
+
+      console.log(error)
     }
   };
 }
